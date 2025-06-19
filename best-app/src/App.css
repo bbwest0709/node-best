@@ -1,6 +1,18 @@
 #root {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  padding: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+.main {
+    min-height: 100vh;
+}
+.footer {
+    text-align: center;
+    background-color: #ccc;
+    padding: 1em;
+    min-height: 40px;
+}
+a:link, a:visited, a:active {
+    text-decoration: none;
 }
