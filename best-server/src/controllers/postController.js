@@ -25,7 +25,7 @@ exports.listPost = async (req, res) => {
         const listSql = `SELECT id, title, content, writer, attach, wdate FROM posts ORDER BY id DESC;`
         const countSql = `SELECT COUNT(id) as totalCount FROM posts`
         const [posts] = await pool.query(listSql)
-        const [totalCount] = await pool.query(countSql)
+        const [[{ totalCount }]] = await pool.query(countSql)
         console.log(posts, totalCount)
         res.status(200).json({
             totalCount,
