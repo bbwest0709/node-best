@@ -12,29 +12,51 @@ const PostList: React.FC = () => {
     }, [])
 
     return (
-        <div className="post-list">
-            <h3>총 게시글 수: {totalCount} 개</h3>
-            {postList.map((post, index) => (<div className="d-flex my-3 p-3" style={{ background: '#efefef', borderRadius: 10 }}>
-                <div style={{ width: '25%' }}>
-                    <img src={`http://localhost:7777/images/noimage.png`}
-                        alt={post.title} className="postImage" />
+        <div className="container my-4">
+            <div className="d-flex justify-content-end mb-4 fw-semibold text-secondary fs-5">
+                총 게시글 수: {totalCount} 개
+            </div>
+            {postList.map((post) => (
+                <div className="card mb-3 shadow-sm p-3" key={post.id}>
+                    <div className="row g-3 align-items-center"> {/* g-3로 칸 사이 간격 */}
+                        <div className="col-md-3">
+                            <img
+                                src={post.file
+                                    ? `http://localhost:7777/uploads/${post.file}`
+                                    : `http://localhost:7777/images/no_image.png`}
+                                alt={post.title}
+                                className="postImage"
+                            />
+                        </div>
+                        <div
+                            className="col-md-9 d-flex flex-column justify-content-between px-4" // ms-4 제거, px-4 유지
+                            style={{ minHeight: '150px' }} // height 대신 minHeight 권장
+                        >
+                            {/* 상단: 제목 + 작성자 */}
+                            <div className="d-flex align-items-center mb-2">
+                                <Link
+                                    to={`/posts/${post.id}`}
+                                    className="text-decoration-none flex-grow-1"
+                                    style={{ fontSize: '1.8rem', fontWeight: '600' }}
+                                >
+                                    {post.title}
+                                </Link>
+                                <small className="text-muted ms-3">작성자: {post.writer}</small>
+                            </div>
+                            {/* 하단: 날짜 */}
+                            <small className="text-muted align-self-end">Posted on {post.wdate}</small>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex-grow-1 ms-3">
-                    <h5>작성자: {post.writer}
-                        <br />
-                        <small className="text-muted">
-                            <i>Posted on {post.wdate} </i>
-                        </small>
-                    </h5>
-                    <Link to={`/posts/${post.id}`}>
-                        <h2>{post.title}</h2>
-                    </Link>
 
-                </div>
-            </div>))}
-            {/* 페이지 네비게이션 자리 ----------- */}
-            <div></div>
+            ))}
 
+            {/* 페이지 네비게이션 자리 */}
+            <nav aria-label="Page navigation example">
+                <ul className="pagination justify-content-center">
+                    {/* 페이지 번호 및 이전/다음 버튼 넣기 */}
+                </ul>
+            </nav>
         </div>
     )
 }

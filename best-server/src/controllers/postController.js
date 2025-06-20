@@ -7,12 +7,21 @@ exports.createPost = async (req, res) => {
         const { writer, title, content } = req.body;
         console.log(`Request Body: writer: ${writer}, title: ${title}, content: ${content}`);
 
-        const sql = `INSERT INTO posts (writer, title, content) VALUES (?, ?, ?)`;
-        const [result] = await pool.execute(sql, [writer, title, content]);
+        // 첨부파일
+        const file = req.file
+        let fileName = null;
+        if (file) {
+            fileName = file.filename; // 실제 저장된 파일명이 들어음 -> DB 저장
+        }
+
+        const sql = `INSERT INTO posts (writer, title, content, attach) VALUES (?, ?, ?, ?)`;
+        const [result] = await pool.execute(sql, [writer, title, content, fileName]);
         console.log('Insert Result: ', result);
+        const newPost = { id: result.insertId, writer, title, content, file: fileName }
         res.status(201).json({
             message: 'Post created succesfully',
-            postId: result.insertId
+            postId: result.insertId,
+            post: newPost
         })
     } catch (error) {
         console.error('createPost error: ', error)

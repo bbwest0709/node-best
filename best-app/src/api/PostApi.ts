@@ -12,3 +12,12 @@ export const apiFetchPostList = async (): Promise<PostResponse> => {
     const response = await axiosInstance.get('/posts')
     return response.data; // { data: Post[], totalCount: number }
 }
+
+export const apiCreatePost = async (data: FormData): Promise<Post> => {
+    const response = await axiosInstance.post('/posts', data, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return response.data as Post;
+};
