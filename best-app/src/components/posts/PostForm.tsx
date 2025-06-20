@@ -1,9 +1,14 @@
+import type { FormEvent } from "react";
 import { Button, Form } from "react-bootstrap"
 
 const PostForm: React.FC = () => {
+
+    const handleSubmit = async (e: FormEvent) => {
+
+    }
     return (
         <>
-            <Form>
+            <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="writer">
                     <Form.Label>Writer</Form.Label>
                     <Form.Control type="text" name="writer" required />

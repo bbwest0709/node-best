@@ -28,8 +28,8 @@ exports.listPost = async (req, res) => {
         const [[{ totalCount }]] = await pool.query(countSql)
         console.log(posts, totalCount)
         res.status(200).json({
-            totalCount,
-            postList: posts,
+            data: posts,
+            totalCount
         })
     } catch (error) {
         console.error('listPost error : ', error)

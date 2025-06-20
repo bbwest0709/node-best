@@ -16,3 +16,7 @@
 a:link, a:visited, a:active {
     text-decoration: none;
 }
+.postImage {
+    width: 90%;
+    border-radius: 1em;
+}

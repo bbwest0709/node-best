@@ -2,6 +2,7 @@ const express = require('express')
 require('dotenv').config()
 const morgan = require('morgan')
 const path = require('path')
+const cors = require('cors')
 // 라우터 가져오기
 const indexRouter = require('./src/routes/indexRouter')
 const postRouter = require('./src/routes/postRouter')
@@ -16,7 +17,9 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(morgan('dev'))
-// cors 미들웨어 설정 예정
+// cors 미들웨어 설정
+app.use(cors()) // react와 통신하려면 필요한 미들웨어
+
 
 // 라우터 설정
 app.use('/', indexRouter)

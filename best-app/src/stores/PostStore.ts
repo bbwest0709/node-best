@@ -4,6 +4,7 @@
  */
 import { create } from "zustand"
 import type { Post } from "../components/posts/types/Post"
+import { apiFetchPostList } from "../api/PostApi";
 
 interface PostState {
     postList: Post[];
@@ -12,11 +13,20 @@ interface PostState {
     fetchPostList: () => Promise<void>;
 }
 
-export const usePostStore = create<PostState>((set, get) => ({
+export const usePostStore = create<PostState>((set) => ({
     postList: [],
     totalCount: 0,
 
     fetchPostList: async () => {
-        // 
+        try {
+            const data = await apiFetchPostList();
+            set({
+                postList: data.data,
+                totalCount: data.totalCount
+            });
+        } catch (error) {
+            alert('목록 조회 실패: ' + (error as Error).message)
+        }
     }
+
 }))
