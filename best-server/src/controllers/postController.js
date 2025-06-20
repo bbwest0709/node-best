@@ -22,7 +22,7 @@ exports.createPost = async (req, res) => {
 
 exports.listPost = async (req, res) => {
     try {
-        const listSql = `SELECT id, title, content, writer, attach, wdate FROM posts ORDER BY id DESC;`
+        const listSql = `SELECT id, title, content, writer, attach file, DATE_FORMAT(wdate, '%Y-%m-%d') wdate FROM posts ORDER BY id DESC`
         const countSql = `SELECT COUNT(id) as totalCount FROM posts`
         const [posts] = await pool.query(listSql)
         const [[{ totalCount }]] = await pool.query(countSql)
