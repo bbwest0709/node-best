@@ -19,10 +19,16 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// 게시글 목록 조회 GET 요청 처리
+router.get('/', postController.listPost);
+
 // 파일 업로드 포함 POST 요청 처리
 router.post('/', upload.single('file'), postController.createPost);
 
-// 게시글 목록 조회 GET 요청 처리
-router.get('/', postController.listPost);
+// 게시글 상세 조회
+router.get('/:id', postController.viewPost);
+
+// 게시글 삭제
+router.delete('/:id', postController.deletePost);
 
 module.exports = router;

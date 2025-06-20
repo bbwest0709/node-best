@@ -1,5 +1,7 @@
 // CRUD 로직
 const pool = require('../models/dbPool')
+const fs = require('fs');
+const path = require('path')
 
 exports.createPost = async (req, res) => {
     console.log('createPost 들어옴...');
@@ -45,3 +47,63 @@ exports.listPost = async (req, res) => {
         res.status(500).json({ message: 'Server Error: ' + error.message })
     }
 }
+
+exports.viewPost = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const sql = `SELECT id, writer, title, content, attach AS file, DATE_FORMAT(wdate, '%Y-%m-%d %H:%i:%s') AS wdate FROM posts WHERE id=?`;
+        const [result] = await pool.query(sql, [id]);
+
+        console.log(result);
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: '해당 글은 없습니다.' });
+        }
+
+        const post = result[0];
+
+        res.status(200).json(post);
+    } catch (error) {
+        console.error('viewPost error: ', error);
+        res.status(500).json({ message: 'Server Error: ' + error.message });
+    }
+};
+
+exports.deletePost = async (req, res) => {
+    const { id } = req.params;
+    const selectSql = `SELECT attach AS file FROM posts WHERE id=?`;
+    try {
+        const [postResult] = await pool.query(selectSql, [id]);
+
+        if (postResult.length === 0) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        const fileName = postResult[0].file;
+
+        // 게시글 삭제
+        const deleteSql = `DELETE FROM posts WHERE id = ?`;
+        const [deleteResult] = await pool.query(deleteSql, [id]);
+
+        if (deleteResult.affectedRows === 0) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        // 파일 삭제
+        const filePath = path.join(__dirname, '..', '..', 'public', 'uploads', fileName);
+        console.log("Attempting to delete file at path:", filePath);  // 경로 찍기
+
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            console.log(`File deleted at: ${filePath}`);
+        } else {
+            console.log(`File not found: ${filePath}`);
+        }
+
+        res.status(200).json({ message: '게시글 삭제 성공' });
+
+    } catch (error) {
+        console.error('DELETE POST ERROR: ', error);
+        res.status(500).json({ message: 'Server Error: ' + error.message });
+    }
+};

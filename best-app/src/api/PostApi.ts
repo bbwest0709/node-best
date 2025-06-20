@@ -21,3 +21,13 @@ export const apiCreatePost = async (data: FormData): Promise<Post> => {
     });
     return response.data as Post;
 };
+
+export const apiFetchPostById = async (id: string): Promise<Post | null> => {
+    const response = await axiosInstance.get(`/posts/${id}`);
+    const data = response.data;
+    return data ? (data as Post) : null;
+}
+
+export const apiDeletePost = async (id: string): Promise<void> => {
+    await axiosInstance.delete(`/posts/${id}`)
+}

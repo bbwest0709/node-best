@@ -4,18 +4,22 @@
  */
 import { create } from "zustand"
 import type { Post } from "../components/posts/types/Post"
-import { apiFetchPostList } from "../api/PostApi";
+import { apiFetchPostList, apiFetchPostById, apiDeletePost } from "../api/postApi";
 
 interface PostState {
     postList: Post[];
     totalCount: number;
+    post: Post | null;
 
     fetchPostList: () => Promise<void>;
+    fetchPostById: (id: string) => Promise<void>;
+    deletePost: (id: string) => Promise<boolean>;
 }
 
 export const usePostStore = create<PostState>((set) => ({
     postList: [],
     totalCount: 0,
+    post: null,
 
     fetchPostList: async () => {
         try {
@@ -27,6 +31,24 @@ export const usePostStore = create<PostState>((set) => ({
         } catch (error) {
             alert('목록 조회 실패: ' + (error as Error).message)
         }
-    }
+    },
+    fetchPostById: async (id) => {
+        try {
+            const post = await apiFetchPostById(id);
+            set({ post })
+        } catch (error) {
+            alert('상세 조회 실패: ' + (error as Error).message)
+        }
+    },
+    deletePost: async (id) => {
+        try {
+            await apiDeletePost(id);
+            set({ post: null })
+            return true;
+        } catch (error) {
+            alert('삭제 실패: ' + (error as Error).message)
+            return false;
+        }
+    },
 
 }))
