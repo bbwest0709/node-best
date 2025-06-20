@@ -1,4 +1,4 @@
-import type { ChangeEvent, FormEvent } from "react";
+import { useRef, type ChangeEvent, type FormEvent } from "react";
 import { Button, Form } from "react-bootstrap"
 import { usePostStore } from "../../stores/PostStore";
 import { usePostFormStore } from "../../stores/PostFormStore";
@@ -7,6 +7,7 @@ import { apiCreatePost } from "../../api/PostApi";
 const PostForm: React.FC = () => {
     const { formData, setFormData, resetForm } = usePostFormStore();
     const fetchPostList = usePostStore(s => s.fetchPostList);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -32,8 +33,11 @@ const PostForm: React.FC = () => {
             }
             await apiCreatePost(form);
             await fetchPostList();
-            alert("게시글이 등록되었습니다.");
+            // alert("게시글이 등록되었습니다.");
             resetForm();
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
         } catch (error) {
             console.error("서버 요청 중 에러:", error);
             alert("서버 요청 중 오류 발생: " + (error as Error).message);
@@ -82,6 +86,7 @@ const PostForm: React.FC = () => {
                         type="file"
                         name="file"
                         onChange={handleFileChange}
+                        ref={fileInputRef}
                     />
                 </Form.Group>
 

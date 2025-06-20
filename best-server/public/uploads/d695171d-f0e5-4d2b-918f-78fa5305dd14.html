@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>모던 비즈니스 웹사이트</title>
+    <style>
+        :root {
+            --beige: #FAE6B1;
+            --orange: #FFA101;
+            --light-blue: #B3DEE5;
+            --dark-teal: #31525B;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #fff;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background-color: var(--dark-teal);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .nav {
+            display: flex;
+        }
+        
+        .nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 2rem;
+            transition: color 0.3s;
+        }
+        
+        .nav a:hover {
+            color: var(--beige);
+        }
+        
+        .hero {
+            height: 100vh;
+            background-color: var(--beige);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 2rem;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--dark-teal);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: #444;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--orange);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .features {
+            padding: 5rem 2rem;
+            background-color: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--dark-teal);
+        }
+        
+        .feature-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-card {
+            flex: 1 1 300px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature-img {
+            height: 200px;
+            background-color: var(--light-blue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            color: var(--dark-teal);
+        }
+        
+        .feature-content {
+            padding: 1.5rem;
+        }
+        
+        .feature-content h3 {
+            color: var(--dark-teal);
+            margin-bottom: 0.5rem;
+        }
+        
+        .about {
+            background-color: var(--light-blue);
+            padding: 5rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .about-text {
+            flex: 1 1 500px;
+            padding: 2rem;
+        }
+        
+        .about-text h2 {
+            color: var(--dark-teal);
+            margin-bottom: 1rem;
+        }
+        
+        .about-image {
+            flex: 1 1 400px;
+            height: 400px;
+            background-color: var(--beige);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--dark-teal);
+            font-size: 1.5rem;
+            margin: 1rem;
+        }
+        
+        .testimonials {
+            padding: 5rem 2rem;
+            background-color: #f9f9f9;
+        }
+        
+        .testimonial-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .testimonial {
+            flex: 1 1 300px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .testimonial::before {
+            content: """;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 5rem;
+            color: var(--orange);
+            opacity: 0.2;
+        }
+        
+        .testimonial-text {
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--orange);
+            margin-right: 1rem;
+        }
+        
+        .cta {
+            background-color: var(--dark-teal);
+            color: white;
+            padding: 5rem 2rem;
+            text-align: center;
+        }
+        
+        .cta h2 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .cta .btn {
+            background-color: var(--orange);
+            margin-top: 1rem;
+        }
+        
+        .footer {
+            background-color: #222;
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+        
+        .footer-links a {
+            color: #ddd;
+            margin: 0 1rem;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--orange);
+        }
+        
+        .copyright {
+            margin-top: 2rem;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .nav {
+                margin-top: 1rem;
+            }
+            
+            .nav a {
+                margin: 0 0.5rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .about {
+                flex-direction: column;
+            }
+            
+            .about-image {
+                width: 100%;
+                margin: 2rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">브랜드명</div>
+        <nav class="nav">
+            <a href="#home">홈</a>
+            <a href="#features">서비스</a>
+            <a href="#about">소개</a>
+            <a href="#testimonials">후기</a>
+            <a href="#contact">문의</a>
+        </nav>
+    </header>
+    
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>혁신적인 솔루션으로<br>비즈니스의 성장을 돕습니다</h1>
+            <p>최신 기술과 창의적인 아이디어로 당신의 비즈니스가 한 단계 더 도약할 수 있도록 지원합니다. 지금 바로 시작해보세요.</p>
+            <a href="#contact" class="btn">무료 상담 신청</a>
+        </div>
+    </section>
+    
+    <section id="features" class="features">
+        <h2 class="section-title">주요 서비스</h2>
+        <div class="feature-container">
+            <div class="feature-card">
+                <div class="feature-img">아이콘1</div>
+                <div class="feature-content">
+                    <h3>비즈니스 컨설팅</h3>
+                    <p>전문적인 컨설팅을 통해 비즈니스 전략을 수립하고 성장 방향을 제시합니다.</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-img">아이콘2</div>
+                <div class="feature-content">
+                    <h3>디지털 마케팅</h3>
+                    <p>효과적인 온라인 마케팅 전략으로 브랜드 인지도와 매출을 높입니다.</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-img">아이콘3</div>
+                <div class="feature-content">
+                    <h3>웹 개발</h3>
+                    <p>사용자 경험을 최우선으로 고려한 웹사이트와 애플리케이션을 개발합니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="about" class="about">
+        <div class="about-text">
+            <h2>회사 소개</h2>
+            <p>저희는 10년 이상의 경험을 바탕으로 다양한 산업 분야의 고객들에게 최상의 서비스를 제공하고 있습니다.</p>
+            <p>창의적인 아이디어와 전문적인 지식을 바탕으로 고객의 비즈니스가 지속적으로 성장할 수 있도록 돕는 것이 저희의 사명입니다.</p>
+            <p>함께 성장하는 파트너로서 언제나 고객의 곁에서 최선의 솔루션을 제공하겠습니다.</p>
+        </div>
+        <div class="about-image">
+            회사 이미지
+        </div>
+    </section>
+    
+    <section id="testimonials" class="testimonials">
+        <h2 class="section-title">고객 후기</h2>
+        <div class="testimonial-container">
+            <div class="testimonial">
+                <p class="testimonial-text">이 회사와 함께 일하면서 비즈니스가 크게 성장했습니다. 전문적인 컨설팅과 맞춤형 솔루션 덕분에 매출이 30% 이상 증가했습니다.</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"></div>
+                    <div>
+                        <h4>김민수</h4>
+                        <p>ABC 회사 CEO</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial">
+                <p class="testimonial-text">웹사이트 리뉴얼 후 사용자 경험이 크게 개선되었고, 이는 고객 유지율 향상으로 이어졌습니다. 탁월한 디자인 감각과 기술력에 감사드립니다.</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"></div>
+                    <div>
+                        <h4>이지연</h4>
+                        <p>XYZ 기업 마케팅 이사</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial">
+                <p class="testimonial-text">디지털 마케팅 캠페인을 통해 온라인 인지도가 크게 향상되었습니다. 데이터 기반의 전략 수립과 실행력이 인상적이었습니다.</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar"></div>
+                    <div>
+                        <h4>박준호</h4>
+                        <p>DEF 스타트업 창업자</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="contact" class="cta">
+        <h2>지금 바로 시작하세요</h2>
+        <p>비즈니스 성장을 위한 첫 걸음, 저희와 함께하시겠습니까?</p>
+        <a href="#" class="btn">무료 상담 예약</a>
+    </section>
+    
+    <footer class="footer">
+        <div class="logo">브랜드명</div>
+        <div class="footer-links">
+            <a href="#">서비스</a>
+            <a href="#">회사소개</a>
+            <a href="#">블로그</a>
+            <a href="#">채용정보</a>
+            <a href="#">연락처</a>
+        </div>
+        <div class="copyright">© 2025 브랜드명. All rights reserved.</div>
+    </footer>
+</body>
+</html>

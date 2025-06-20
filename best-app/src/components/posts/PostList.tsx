@@ -6,6 +6,9 @@ const PostList: React.FC = () => {
     const fetchPostList = usePostStore(s => s.fetchPostList)
     const postList = usePostStore(s => s.postList)
     const totalCount = usePostStore(s => s.totalCount)
+    const isImageFile = (filename: string) => {
+        return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(filename);
+    };
 
     useEffect(() => {
         fetchPostList();
@@ -21,9 +24,11 @@ const PostList: React.FC = () => {
                     <div className="row g-3 align-items-center"> {/* g-3로 칸 사이 간격 */}
                         <div className="col-md-3">
                             <img
-                                src={post.file
-                                    ? `http://localhost:7777/uploads/${post.file}`
-                                    : `http://localhost:7777/images/no_image.png`}
+                                src={
+                                    post.file && isImageFile(post.file)
+                                        ? `http://localhost:7777/uploads/${post.file}`
+                                        : `http://localhost:7777/images/no_image.png`
+                                }
                                 alt={post.title}
                                 className="postImage"
                             />
