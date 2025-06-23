@@ -8,6 +8,7 @@ import { Col, Row } from 'react-bootstrap'
 import PostApp from "./pages/PostApp"
 import PostView from './components/posts/PostView'
 import PostEdit from './components/posts/PostEdit'
+import SignUpForm from './components/users/SignUpForm'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
               <Route path="/posts" element={<PostApp />} />
               <Route path="/posts/:id" element={<PostView />} />
               <Route path="/posts/edit/:id" element={<PostEdit />} />
+              <Route path="/signup" element={<SignUpForm />} />
             </Routes>
           </Col>
         </Row>

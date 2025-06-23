@@ -15,7 +15,7 @@ const PostList: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchPostList(page);
+        fetchPostList();
     }, [page])
 
     const pageBlock = 5;
