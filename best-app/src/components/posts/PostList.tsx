@@ -83,19 +83,20 @@ const PostList: React.FC = () => {
                     {/* 페이지 번호 및 이전/다음 버튼 넣기 */}
 
                     {/* 이전 블록 버튼 */}
-                    <li className="page-item">
-                        <button
-                            className="page-link"
-                            onClick={handlePrevBlock}
-                            disabled={startPage === 1}  // 첫 페이지에선 이전 블록 비활성화
-                        >
-                            &laquo; 이전
-                        </button>
-                    </li>
+                    {startPage > 1 && (
+                        <li className="page-item">
+                            <button
+                                className="page-link"
+                                onClick={handlePrevBlock}
+                            >
+                                &laquo; 이전
+                            </button>
+                        </li>
+                    )}
 
                     {/* 페이지 번호 버튼 */}
                     <div className="text-center">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                        {Array.from({ length: endPage - startPage + 1 }, (_, i) => i + startPage).map((n) => (
                             <button key={n} className={`btn ${n === page ? 'btn-primary' : 'btn-outline-primary'}  mx-1`} onClick={() => setPage(n)}>
                                 {n}
                             </button>
@@ -103,15 +104,16 @@ const PostList: React.FC = () => {
                     </div>
 
                     {/* 다음 블록 버튼 */}
-                    <li className="page-item">
-                        <button
-                            className="page-link"
-                            onClick={handleNextBlock}
-                            disabled={endPage === totalPages}  // 마지막 페이지 블록에선 다음 블록 비활성화
-                        >
-                            다음 &raquo;
-                        </button>
-                    </li>
+                    {endPage < totalPages && (
+                        <li className="page-item">
+                            <button
+                                className="page-link"
+                                onClick={handleNextBlock}
+                            >
+                                다음 &raquo;
+                            </button>
+                        </li>
+                    )}
 
                 </ul>
             </nav>
