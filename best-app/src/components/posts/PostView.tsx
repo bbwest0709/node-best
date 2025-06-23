@@ -26,7 +26,7 @@ const PostView: React.FC = () => {
         const result = await deletePost(id);
         if (result) {
             alert('삭제 성공')
-            // navigate('/posts)
+            navigate('/posts')
         } else {
             alert('삭제 실패')
         }
@@ -62,8 +62,10 @@ const PostView: React.FC = () => {
                             <div className="cArea px-5">
                                 {post.content}
                                 <br />
-                                <AiFillHeart style={{ color: 'hotpink' }} />
-                                <AiFillDislike style={{ color: 'green' }} />
+                                <div className="d-flex gap-4 align-items-center my-3">
+                                    <AiFillHeart style={{ color: 'hotpink' }} />
+                                    <AiFillDislike style={{ color: 'green' }} />
+                                </div>
                             </div>
                         </div>
                         <div className="card-footer">

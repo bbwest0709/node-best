@@ -90,14 +90,18 @@ exports.deletePost = async (req, res) => {
         }
 
         // 파일 삭제
-        const filePath = path.join(__dirname, '..', '..', 'public', 'uploads', fileName);
-        console.log("Attempting to delete file at path:", filePath);  // 경로 찍기
+        if (fileName) {
+            const filePath = path.join(__dirname, '..', '..', 'public', 'uploads', fileName);
+            console.log("Attempting to delete file at path:", filePath);
 
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-            console.log(`File deleted at: ${filePath}`);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+                console.log(`File deleted at: ${filePath}`);
+            } else {
+                console.log(`File not found: ${filePath}`);
+            }
         } else {
-            console.log(`File not found: ${filePath}`);
+            console.log('첨부파일이 없으므로 파일 삭제를 건너뜁니다.');
         }
 
         res.status(200).json({ message: '게시글 삭제 성공' });
