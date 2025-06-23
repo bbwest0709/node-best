@@ -5,11 +5,13 @@ import axiosInstance from "./axiosInstance";
 export interface PostResponse {
     data: Post[];
     totalCount: number;
-    // totalPages: number;
+    totalPages: number;
 }
 
-export const apiFetchPostList = async (): Promise<PostResponse> => {
-    const response = await axiosInstance.get('/posts')
+export const apiFetchPostList = async (page: number, size: number): Promise<PostResponse> => {
+    const response = await axiosInstance.get('/posts', {
+        params: { page, size }  // 쿼리 파라미터로 page와 size 전달
+    });
     return response.data; // { data: Post[], totalCount: number }
 }
 

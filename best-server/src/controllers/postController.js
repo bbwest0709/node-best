@@ -33,15 +33,25 @@ exports.createPost = async (req, res) => {
 
 exports.listPost = async (req, res) => {
     try {
-        const listSql = `SELECT id, title, content, writer, attach file, DATE_FORMAT(wdate, '%Y-%m-%d') wdate FROM posts ORDER BY id DESC`
+        const size = 3; // 한 페이지 당 보여줄 목록 개수
+        const page = parseInt(req.query.page || 1) // 현재 보여줄 페이지 번호
+        const offset = (page - 1) * size
+
+
         const countSql = `SELECT COUNT(id) as totalCount FROM posts`
-        const [posts] = await pool.query(listSql)
         const [[{ totalCount }]] = await pool.query(countSql)
+
+        const totalPages = Math.ceil(totalCount / size)
+
+        const listSql = `SELECT id, title, content, writer, attach AS file, DATE_FORMAT(wdate, '%Y-%m-%d') wdate FROM posts ORDER BY id DESC LIMIT ? OFFSET ?`
+        const [posts] = await pool.query(listSql, [size, offset])
         console.log(posts, totalCount)
         res.status(200).json({
             data: posts,
-            totalCount
+            totalCount,
+            totalPages
         })
+
     } catch (error) {
         console.error('listPost error : ', error)
         res.status(500).json({ message: 'Server Error: ' + error.message })

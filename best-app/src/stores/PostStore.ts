@@ -8,25 +8,36 @@ import { apiFetchPostList, apiFetchPostById, apiDeletePost } from "../api/postAp
 
 interface PostState {
     postList: Post[];
-    totalCount: number;
+    totalCount: number; // 총 게시글 개수
+    totalPages: number; // 총 페이지 개수
+    page: number; // 현재 보여줄 페이지 번호
+    size: number; // 한 페이지 당 보여줄 목록 개수
     post: Post | null;
 
+    setPage: (page: number) => void; // 페이지 변경
     fetchPostList: () => Promise<void>;
     fetchPostById: (id: string) => Promise<void>;
     deletePost: (id: string) => Promise<boolean>;
 }
 
-export const usePostStore = create<PostState>((set) => ({
+export const usePostStore = create<PostState>((set, get) => ({
     postList: [],
     totalCount: 0,
+    totalPages: 0,
+    page: 1,
+    size: 3,
     post: null,
 
+    setPage: (newPage: number) => set({ page: newPage }),
     fetchPostList: async () => {
+        const { page, size } = get(); // get() 함수로 page state 값 가져오기
+
         try {
-            const data = await apiFetchPostList();
+            const data = await apiFetchPostList(page, size);
             set({
                 postList: data.data,
-                totalCount: data.totalCount
+                totalCount: data.totalCount,
+                totalPages: data.totalPages,
             });
         } catch (error) {
             alert('목록 조회 실패: ' + (error as Error).message)
