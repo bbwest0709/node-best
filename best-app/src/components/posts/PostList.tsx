@@ -18,6 +18,23 @@ const PostList: React.FC = () => {
         fetchPostList(page);
     }, [page])
 
+    const pageBlock = 5;
+    const startPage = Math.floor((page - 1) / pageBlock) * pageBlock + 1;
+    const endPage = Math.min(startPage + pageBlock - 1, totalPages);
+
+    const handlePrevBlock = () => {
+        if (startPage > 1) {
+            setPage(startPage - 1);
+        }
+    };
+
+    const handleNextBlock = () => {
+        if (endPage < totalPages) {
+            setPage(endPage + 1);
+        }
+    };
+
+
     return (
         <div className="container my-4">
             <div className="d-flex justify-content-end mb-4 fw-semibold text-secondary fs-5">
@@ -65,6 +82,18 @@ const PostList: React.FC = () => {
                 <ul className="pagination justify-content-center">
                     {/* 페이지 번호 및 이전/다음 버튼 넣기 */}
 
+                    {/* 이전 블록 버튼 */}
+                    <li className="page-item">
+                        <button
+                            className="page-link"
+                            onClick={handlePrevBlock}
+                            disabled={startPage === 1}  // 첫 페이지에선 이전 블록 비활성화
+                        >
+                            &laquo; 이전
+                        </button>
+                    </li>
+
+                    {/* 페이지 번호 버튼 */}
                     <div className="text-center">
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
                             <button key={n} className={`btn ${n === page ? 'btn-primary' : 'btn-outline-primary'}  mx-1`} onClick={() => setPage(n)}>
@@ -72,6 +101,17 @@ const PostList: React.FC = () => {
                             </button>
                         ))}
                     </div>
+
+                    {/* 다음 블록 버튼 */}
+                    <li className="page-item">
+                        <button
+                            className="page-link"
+                            onClick={handleNextBlock}
+                            disabled={endPage === totalPages}  // 마지막 페이지 블록에선 다음 블록 비활성화
+                        >
+                            다음 &raquo;
+                        </button>
+                    </li>
 
                 </ul>
             </nav>
