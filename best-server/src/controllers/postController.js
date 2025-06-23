@@ -111,3 +111,46 @@ exports.deletePost = async (req, res) => {
         res.status(500).json({ message: 'Server Error: ' + error.message });
     }
 };
+
+exports.updatePost = async (req, res) => {
+    const { id } = req.params;
+    const { writer, title, content } = req.body;
+    const newFile = req.file;
+
+    try {
+        const selectSql = `SELECT attach AS file FROM posts WHERE id = ?`
+        const [postResult] = await pool.query(selectSql, [id])
+
+        if (postResult.length === 0) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        const oldFileName = postResult[0].file;
+
+        let updatedFileName = oldFileName;
+
+        if (newFile) {
+            updatedFileName = newFile.filename
+
+            if (oldFileName) {
+                const oldFilePath = path.join(__dirname, '..', '..', 'public', 'uploads', oldFileName)
+                if (fs.existsSync(oldFilePath)) {
+                    fs.unlinkSync(oldFilePath);
+                    console.log(`기존 파일 삭제: ${oldFilePath}`);
+                }
+            }
+        }
+
+        const updateSql = `UPDATE posts SET writer = ?, title = ?, content = ?, attach = ? WHERE id = ?`
+        const [updateResult] = await pool.execute(updateSql, [writer, title, content, updatedFileName, id])
+
+        if (updateResult.affectedRows === 0) {
+            return res.status(404).json({ message: '게시글 수정 실패' })
+        }
+
+        res.status(200).json({ message: '게시글 수정 성공' })
+    } catch (error) {
+        console.error('updatePost error: ', error);
+        res.status(500).json({ message: '서버 오류: ' + error.message });
+    }
+}

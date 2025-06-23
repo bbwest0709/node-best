@@ -31,4 +31,7 @@ router.get('/:id', postController.viewPost);
 // 게시글 삭제
 router.delete('/:id', postController.deletePost);
 
+// 게시글 수정
+router.put('/:id', upload.single('file'), postController.updatePost);
+
 module.exports = router;

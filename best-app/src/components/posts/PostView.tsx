@@ -42,7 +42,7 @@ const PostView: React.FC = () => {
                 <div className="col px-5">
                     <h1 className="my-5 text-center">Post View [No. {id}]</h1>
                     <div className="text-end my-2">
-                        <Link to={`/postEdit/${post.id}`}>
+                        <Link to={`/posts/edit/${post.id}`}>
                             <button className="btn btn-info mx-2">수정</button>
                         </Link>
                         <button className="btn btn-danger" onClick={handleDelete}>삭제</button>

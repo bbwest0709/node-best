@@ -31,3 +31,9 @@ export const apiFetchPostById = async (id: string): Promise<Post | null> => {
 export const apiDeletePost = async (id: string): Promise<void> => {
     await axiosInstance.delete(`/posts/${id}`)
 }
+
+export const apiUpdatePost = async (data: FormData, id: string): Promise<void> => {
+    const response = await axiosInstance.put(`/posts/${id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    })
+}

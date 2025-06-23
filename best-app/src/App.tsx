@@ -7,6 +7,7 @@ import Home from './pages/Home'
 import { Col, Row } from 'react-bootstrap'
 import PostApp from "./pages/PostApp"
 import PostView from './components/posts/PostView'
+import PostEdit from './components/posts/PostEdit'
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/posts" element={<PostApp />} />
               <Route path="/posts/:id" element={<PostView />} />
+              <Route path="/posts/edit/:id" element={<PostEdit />} />
             </Routes>
           </Col>
         </Row>
