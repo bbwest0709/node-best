@@ -20,4 +20,9 @@ export interface createUserData {
     insertId: number
 }
 
+export interface EmailCheckData {
+    isDuplicate: boolean;
+}
+
 export type CreateUserResponse = ApiResesponse<createUserData>;
+export type EmailCheckResponse = ApiResesponse<EmailCheckData>;
