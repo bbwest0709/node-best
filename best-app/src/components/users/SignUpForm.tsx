@@ -27,12 +27,12 @@ const SignUpForm: React.FC = () => {
             return;
         }
         try {
-            const res = await apiCheckEmailDuplicate(user.email);
+            const res = await apiCheckEmailDuplicate(user.email)
+            alert(res.message)
+
             if (res.result === 'success') {
-                alert('사용 가능한 이메일입니다.');
                 setDuplicateChecked(true);
             } else {
-                alert('이미 사용 중인 이메일입니다.');
                 setDuplicateChecked(false);
             }
         } catch (error) {
