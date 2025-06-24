@@ -9,8 +9,15 @@ export interface User {
 export type Role = 'USER' | 'ADMIN' // enum으로도 가능
 
 // 공통 api 응답
-export interface ApiResponse<T = undefined> {
+export interface ApiResesponse<T = undefined> {
     result: 'success' | 'fail';
     message: string;
     data?: T; // 성공시에만 존재
 }
+
+// 회원가입 성공시 전달할 데이터 payload
+export interface createUserData {
+    insertId: number
+}
+
+export type CreateUserResponse = ApiResesponse<createUserData>;
