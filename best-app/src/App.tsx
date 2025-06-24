@@ -9,10 +9,12 @@ import PostApp from "./pages/PostApp"
 import PostView from './components/posts/PostView'
 import PostEdit from './components/posts/PostEdit'
 import SignUpForm from './components/users/SignUpForm'
-import SignInForm from './components/users/SignInForm'
 import UserList from './components/users/UserList'
 
 function App() {
+  // const [modalShow, setModalShow] = useState(false);
+  // const handleShowModal = () => setModalShow(true);
+  // const handleHideModal = () => setModalShow(false);
   return (
     <BrowserRouter>
       <div className="container-fluid py-5">
@@ -32,7 +34,6 @@ function App() {
               <Route path="/posts/:id" element={<PostView />} />
               <Route path="/posts/edit/:id" element={<PostEdit />} />
               <Route path="/signup" element={<SignUpForm />} />
-              <Route path="/signin" element={<SignInForm />} />
               <Route path="/admin/users" element={<UserList />} />
             </Routes>
           </Col>
@@ -43,6 +44,14 @@ function App() {
           </Col>
         </Row>
       </div>
+
+      {/* 로그인 모달 제어
+      <Button className="position-fixed bottom-0 start-50 translate-middle-x mb-3" variant="outline-success" onClick={handleShowModal}>
+        로그인
+      </Button>
+
+      <LoginModal show={modalShow} onHide={handleHideModal} /> */}
+
     </BrowserRouter>
   );
 }
