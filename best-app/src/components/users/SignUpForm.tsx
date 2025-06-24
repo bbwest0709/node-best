@@ -40,36 +40,40 @@ const SignUpForm: React.FC = () => {
         }
     }
 
+    const validateForm = (): boolean => {
+        if (!user.name.trim()) {
+            alert('이름을 입력하세요');
+            nameRef.current?.focus();
+            return false;
+        }
+        if (!user.email.trim()) {
+            alert('이메일을 입력하세요');
+            emailRef.current?.focus();
+            return false;
+        }
+        if (!user.passwd.trim()) {
+            alert('비밀번호를 입력하세요');
+            passwdRef.current?.focus();
+            return false;
+        }
+        if (!duplicateChecked) {
+            alert('이메일 중복 확인을 먼저 해주세요.');
+            return false;
+        }
+
+        return true;
+    };
+
     const onSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        const { name, email, passwd } = user;
         // 유효성 체크
-        if (!name.trim()) {
-            alert('이름을 입력하세요');
-            nameRef.current?.focus();
-            return;
-        }
-        if (!email.trim()) {
-            alert('이메일을 입력하세요');
-            emailRef.current?.focus();
-            return;
-        }
-        if (!passwd.trim()) {
-            alert('비밀번호를 입력하세요');
-            passwdRef.current?.focus();
-            return;
-        }
-
-        // 이메일 중복 체크 여부 확인
-        if (!duplicateChecked) {
-            return alert('이메일 중복 확인을 먼저 해주세요.');
-        }
+        if (!validateForm()) return;
 
         try {
             // api 요청
-            const res = await apiSignUp(user)
-            alert(JSON.stringify(res))
+            await apiSignUp(user)
+            navigate('/login');
         } catch (error) {
             alert('Server Error: ' + (error as Error).message)
         }
