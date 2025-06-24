@@ -24,5 +24,15 @@ export interface EmailCheckData {
     isDuplicate: boolean;
 }
 
+export interface UserWithoutPassword {
+    id?: number;
+    name: string;
+    email: string;
+    role: Role;
+    indate: string;
+}
+
+export type UserListResponse = ApiResesponse<UserWithoutPassword[]>;
+
 export type CreateUserResponse = ApiResesponse<createUserData>;
 export type EmailCheckResponse = ApiResesponse<EmailCheckData>;

@@ -54,4 +54,4 @@ exports.checkEmailDuplicate = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ result: 'fail', message: '서버 오류가 발생했습니다.' });
     }
-}
+};

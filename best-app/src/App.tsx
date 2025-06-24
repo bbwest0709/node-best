@@ -10,6 +10,7 @@ import PostView from './components/posts/PostView'
 import PostEdit from './components/posts/PostEdit'
 import SignUpForm from './components/users/SignUpForm'
 import SignInForm from './components/users/SignInForm'
+import UserList from './components/users/UserList'
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
               <Route path="/posts/edit/:id" element={<PostEdit />} />
               <Route path="/signup" element={<SignUpForm />} />
               <Route path="/signin" element={<SignInForm />} />
+              <Route path="/admin/users" element={<UserList />} />
             </Routes>
           </Col>
         </Row>
