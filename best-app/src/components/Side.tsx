@@ -15,7 +15,7 @@ const Side: React.FC = () => {
 
             <Button variant="outline-success">Logout</Button>
 
-            <Button variant="outline-success">SignIn</Button>
+            <Button variant="outline-success" as={Link as any} to="signin">SignIn</Button>
 
             <Button variant="outline-danger">인증 테스트</Button>
 

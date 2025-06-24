@@ -11,6 +11,7 @@ const SignUpForm: React.FC = () => {
     const emailRef = useRef<HTMLInputElement>(null);
     const passwdRef = useRef<HTMLInputElement>(null);
     const { user, duplicateChecked, setField, reset, setDuplicateChecked } = useUserStore();
+    const [emailCheckMessage, setEmailCheckMessage] = useState('');
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setField(e.target.name as keyof typeof user, e.target.value)
@@ -28,7 +29,7 @@ const SignUpForm: React.FC = () => {
         }
         try {
             const res = await apiCheckEmailDuplicate(user.email)
-            alert(res.message)
+            setEmailCheckMessage(res.message)
 
             if (res.result === 'success') {
                 setDuplicateChecked(true);
@@ -98,7 +99,7 @@ const SignUpForm: React.FC = () => {
                         <input className="form-control" name="email" value={user.email} onChange={handleChange} ref={emailRef} />
                         <button type="button" className="btn btn-outline-success" onClick={handleCheckEmail}>중복 체크</button>
                     </div>
-                    <div className="mt-1 small">중복 확인 메시지</div>
+                    <div className="mt-1 small">{emailCheckMessage}</div>
                 </div>
 
                 {/* 비밀번호 */}
