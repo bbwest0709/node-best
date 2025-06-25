@@ -1,55 +1,77 @@
-import React, { useRef, type ChangeEvent, type FormEvent } from 'react';
-import { useUserStore } from '../../stores/UserStore';
+import React, { useState, useRef, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Row, Col, Form } from 'react-bootstrap';
-// import { apiSignIn } from '../../api/userApi';
+import { useAuthStore, type AuthUser } from '../../stores/authStore';
+import { apiSignIn } from '../../api/userApi';
 
 interface LoginModalProps {
     show: boolean;
     onHide: () => void;
 }
 
+interface LoginUser {
+    email: string;
+    passwd: string;
+}
+
 export function LoginModal({ show, onHide }: LoginModalProps) {
+    const [loginUser, setLoginUser] = useState<LoginUser>({ email: '', passwd: '' });
+    const loginAuthUser = useAuthStore((s) => s.loginAuthUser);
     const navigate = useNavigate();
+
     const emailRef = useRef<HTMLInputElement>(null);
     const passwdRef = useRef<HTMLInputElement>(null);
-    const { user, setField } = useUserStore();
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setField(e.target.name as keyof typeof user, e.target.value);
+        setLoginUser(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
+    // 유효성 검사
     const validateForm = () => {
-        if (!user.email.trim()) {
+        if (!loginUser.email.trim()) {
             alert('이메일을 입력하세요');
             emailRef.current?.focus();
-            return;
+            return false;
         }
-        if (!user.passwd.trim()) {
+        if (!loginUser.passwd.trim()) {
             alert('비밀번호를 입력하세요');
             passwdRef.current?.focus();
-            return;
+            return false;
         }
         return true;
-    }
+    };
 
-    const onSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-
-        if (!validateForm()) return;
-
+    // 로그인 요청
+    const requestLogin = async () => {
         try {
-            // const res = await apiSignIn({ email: user.email, passwd: user.passwd });
-            alert('로그인 성공!');
-            onHide();
-            navigate('/');
+            const res = await apiSignIn(loginUser);
+            if (res.result === 'success' && res.data) {
+                handleLoginSuccess(res.data);
+            } else {
+                alert('로그인 실패: ' + res.message);
+            }
         } catch (error) {
             alert('로그인 실패: ' + (error as Error).message);
         }
     };
 
+    // 로그인 성공 처리
+    const handleLoginSuccess = (data: AuthUser) => {
+        alert('로그인 성공!');
+        loginAuthUser(data);  // 상태에 로그인된 사용자 정보 저장
+        console.log('로그인된 사용자 정보:', data);
+        onHide();
+        navigate('/');
+    };
+
+    const onSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        if (!validateForm()) return;
+        await requestLogin();
+    };
+
     return (
-        <Modal show={show} onHide={onHide} centered size="md">
+        <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
                 <Modal.Title className="text-center w-100">로그인</Modal.Title>
             </Modal.Header>
@@ -62,13 +84,13 @@ export function LoginModal({ show, onHide }: LoginModalProps) {
                                 <Form.Control
                                     type="email"
                                     name="email"
-                                    value={user.email}
+                                    value={loginUser.email}
                                     onChange={handleChange}
                                     ref={emailRef}
                                     placeholder="이메일을 입력하세요"
                                     autoFocus
                                     required
-                                    isInvalid={!user.email.trim()}
+                                    isInvalid={!loginUser.email.trim()}
                                     className="form-control-md"
                                 />
                                 <Form.Control.Feedback type="invalid">
@@ -85,12 +107,12 @@ export function LoginModal({ show, onHide }: LoginModalProps) {
                                 <Form.Control
                                     type="password"
                                     name="passwd"
-                                    value={user.passwd}
+                                    value={loginUser.passwd}
                                     onChange={handleChange}
                                     ref={passwdRef}
                                     placeholder="비밀번호를 입력하세요"
                                     required
-                                    isInvalid={!user.passwd.trim()}
+                                    isInvalid={!loginUser.passwd.trim()}
                                     className="form-control-md"
                                 />
                                 <Form.Control.Feedback type="invalid">
@@ -104,7 +126,7 @@ export function LoginModal({ show, onHide }: LoginModalProps) {
                         variant="primary"
                         type="submit"
                         className="w-100 btn-md"
-                        disabled={!user.email || !user.passwd} // 필드가 비어있으면 로그인 버튼 비활성화
+                        disabled={!loginUser.email || !loginUser.passwd} // 필드가 비어있으면 로그인 버튼 비활성화
                     >
                         로그인
                     </Button>

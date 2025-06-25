@@ -1,3 +1,5 @@
+import type { AuthUser } from "../../../stores/authStore";
+
 export interface User {
     id?: number;
     name: string;
@@ -18,6 +20,16 @@ export interface ApiResesponse<T = undefined> {
 // 회원가입 성공시 전달할 데이터 payload
 export interface createUserData {
     insertId: number
+}
+
+// 로그인 응답시 payload
+// export type AuthUserResponse = ApiResesponse<AuthUser>
+// AuthUser(id, name, email, role, accessToken, refreshToken)
+
+export interface ApiSignInResponse {
+    result: 'success' | 'fail';
+    message: string;
+    data?: AuthUser;  // 로그인 실패 시 data가 없을 수도 있음
 }
 
 export interface EmailCheckData {
