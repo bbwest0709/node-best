@@ -52,18 +52,24 @@ exports.login = async (req, res) => {
         // JWT 토큰 생성
         const { accessToken, refreshToken } = generateTokens(user);
 
-        return res.status(200).json({
-            result: 'success',
-            message: '로그인 성공',
-            data: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                accessToken,
-                refreshToken,
-            },
-        });
+        // 리프레시 토큰 쿠키 저장
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            sameSite: 'Strict', // CSRF 공격 방지
+        })
+
+        return res.status(200)
+            .set('Authorization', `Bearer ${accessToken}`) // 액세스 토큰 헤더 저장
+            .json({
+                result: 'success',
+                message: '로그인 성공',
+                data: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                },
+            })
 
     } catch (error) {
         console.error(error);

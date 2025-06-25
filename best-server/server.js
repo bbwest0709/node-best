@@ -20,6 +20,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(morgan('dev'))
 // cors 미들웨어 설정
+
 app.use(cors()) // react와 통신하려면 필요한 미들웨어
 
 
