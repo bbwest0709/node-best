@@ -1,4 +1,4 @@
-import React, { useState, useRef, type ChangeEvent, type FormEvent } from 'react';
+import React, { useState, useRef, type ChangeEvent, type FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Row, Col, Form } from 'react-bootstrap';
 import { useAuthStore, type AuthUser } from '../../stores/authStore';
@@ -70,6 +70,13 @@ export function LoginModal({ show, onHide }: LoginModalProps) {
         await requestLogin();
     };
 
+    // 로그인 모달 열릴 때마다 비밀번호 초기화
+    useEffect(() => {
+        if (show) {
+            setLoginUser(prev => ({ ...prev, passwd: '' }))
+        }
+    }, [show])
+
     return (
         <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
@@ -92,6 +99,7 @@ export function LoginModal({ show, onHide }: LoginModalProps) {
                                     required
                                     isInvalid={!loginUser.email.trim()}
                                     className="form-control-md"
+                                    autoComplete="on"
                                 />
                                 <Form.Control.Feedback type="invalid">
                                     이메일을 입력하세요.
@@ -114,6 +122,7 @@ export function LoginModal({ show, onHide }: LoginModalProps) {
                                     required
                                     isInvalid={!loginUser.passwd.trim()}
                                     className="form-control-md"
+                                    autoComplete="new-password"
                                 />
                                 <Form.Control.Feedback type="invalid">
                                     비밀번호를 입력하세요.
