@@ -10,11 +10,36 @@ import PostView from './components/posts/PostView'
 import PostEdit from './components/posts/PostEdit'
 import SignUpForm from './components/users/SignUpForm'
 import UserList from './components/users/UserList'
+import { useAuthStore, type AuthUser } from './stores/authStore'
+import { useEffect } from 'react'
+import axiosInstance from './api/axiosInstance'
 
 function App() {
-  // const [modalShow, setModalShow] = useState(false);
-  // const handleShowModal = () => setModalShow(true);
-  // const handleHideModal = () => setModalShow(false);
+  const loginAuthUser = useAuthStore(s => s.loginAuthUser)
+
+  useEffect(() => {
+    const restoreLogin = async () => {
+      const accessToken = sessionStorage.getItem('accessToken')
+      if (!accessToken) return
+
+      try {
+        const res = await axiosInstance.get<AuthUser>('/auth/user', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        loginAuthUser(res.data)
+      } catch (err) {
+        console.error('자동 로그인 실패:', err)
+        sessionStorage.removeItem('accessToken')
+        document.cookie = "refreshToken=; Max-Age=0; path=/"
+      }
+    }
+
+    restoreLogin()
+  }, [loginAuthUser])
+
+
   return (
     <BrowserRouter>
       <div className="container-fluid py-5">
