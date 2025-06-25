@@ -9,7 +9,6 @@ import axios from "axios";
 const Side: React.FC = () => {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const authUser = useAuthStore((s) => s.authUser); // 로그인된 사용자 정보
-    const loginAuthUser = useAuthStore((s) => s.loginAuthUser);
     const logout = useAuthStore((s) => s.logout)
     const navigate = useNavigate();
 

@@ -2,9 +2,9 @@ import { create } from 'zustand';
 import type { Role } from '../components/users/types/user';
 
 export interface AuthUser {
-    id: number;
+    // id: number;
     name: string;
-    email: string;
+    // email: string;
     role?: Role;
     // accessToken?: string;
     // refreshToken?: string;
