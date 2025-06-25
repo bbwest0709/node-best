@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { LoginModal } from "./users/LoginModal";
 import { useAuthStore } from "../stores/authStore";
 import { apiSignOut } from "../api/userApi";
+import axios from "axios";
 
 const Side: React.FC = () => {
     const [showLoginModal, setShowLoginModal] = useState(false);
@@ -25,6 +26,13 @@ const Side: React.FC = () => {
         try {
             await apiSignOut();
             logout();
+
+            // 리프레시 토큰 쿠키 만료 설정
+            document.cookie = "refreshToken=; Max-Age=0; path=/"
+
+            // 액세스 토큰 헤더 제거
+            delete axios.defaults.headers['Authorization']
+
             alert("로그아웃 되었습니다!");
 
             navigate("/");
