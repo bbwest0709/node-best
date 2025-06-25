@@ -26,6 +26,18 @@ const generateTokens = (user) => {
     return { accessToken, refreshToken };
 };
 
+// email 로 사용자 id 조회
+async function getUserIdByEmail(email) {
+    const sql = `SELECT id FROM members WHERE email = ?`
+    const [result] = await pool.execute(sql, [email])
+
+    if (row.length === 0) {
+        throw errorResponse(404, '사용자를 찾을 수 없습니다.')
+    }
+
+    return result[0].id;
+}
+
 // 로그인 처리 함수
 exports.login = async (req, res) => {
     const { email, passwd } = req.body;
@@ -64,9 +76,7 @@ exports.login = async (req, res) => {
                 result: 'success',
                 message: '로그인 성공',
                 data: {
-                    id: user.id,
                     name: user.name,
-                    email: user.email,
                     role: user.role,
                 },
             })
