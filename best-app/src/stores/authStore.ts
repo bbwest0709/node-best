@@ -6,8 +6,8 @@ export interface AuthUser {
     name: string;
     // email: string;
     role?: Role;
-    // accessToken?: string;
-    // refreshToken?: string;
+    accessToken?: string;
+    refreshToken?: string;
 }
 
 // 상태 정의

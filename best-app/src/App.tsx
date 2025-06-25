@@ -10,12 +10,16 @@ import PostView from './components/posts/PostView'
 import PostEdit from './components/posts/PostEdit'
 import SignUpForm from './components/users/SignUpForm'
 import UserList from './components/users/UserList'
+import LoginModal from './components/users/LoginModal'
 import { useAuthStore, type AuthUser } from './stores/authStore'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import axiosInstance from './api/axiosInstance'
 
 function App() {
   const loginAuthUser = useAuthStore(s => s.loginAuthUser)
+
+  // 1. 로그인 모달 보여줄지 여부 상태 추가
+  const [showLogin, setShowLogin] = useState(false)
 
   useEffect(() => {
     const restoreLogin = async () => {
@@ -39,7 +43,6 @@ function App() {
     restoreLogin()
   }, [loginAuthUser])
 
-
   return (
     <BrowserRouter>
       <div className="container-fluid py-5">
@@ -49,10 +52,15 @@ function App() {
           </Col>
         </Row>
         <Row className="main">
+          {/* 2. setShowLogin을 Side에 넘겨줌 */}
           <Col xs={12} sm={4} md={4} lg={3} className="d-none d-sm-block mt-3">
-            <Side />
+            <Side setShowLogin={setShowLogin} />
           </Col>
+
           <Col xs={12} sm={8} md={8} lg={9}>
+            {/* 3. 로그인 모달 렌더링 + show, setShowLogin 전달 */}
+            <LoginModal show={showLogin} setShowLogin={setShowLogin} />
+
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/posts" element={<PostApp />} />
@@ -69,14 +77,6 @@ function App() {
           </Col>
         </Row>
       </div>
-
-      {/* 로그인 모달 제어
-      <Button className="position-fixed bottom-0 start-50 translate-middle-x mb-3" variant="outline-success" onClick={handleShowModal}>
-        로그인
-      </Button>
-
-      <LoginModal show={modalShow} onHide={handleHideModal} /> */}
-
     </BrowserRouter>
   );
 }

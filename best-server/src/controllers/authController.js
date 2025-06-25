@@ -1,109 +1,216 @@
-const pool = require('../models/dbPool');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
+const pool = require("../models/dbPool");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key";
 
 // 에러 응답을 일관되게 처리하는 유틸리티 함수
 const errorResponse = (status, message) => ({
-    result: 'fail',
-    message,
-    status,
+  result: "fail",
+  message,
+  status,
 });
 
 // 비밀번호 검증 함수
 const validatePassword = async (inputPassword, storedPassword) => {
-    const isMatch = await bcrypt.compare(inputPassword, storedPassword);
-    if (!isMatch) {
-        throw errorResponse(400, '이메일 또는 비밀번호가 잘못되었습니다.');
-    }
+  const isMatch = await bcrypt.compare(inputPassword, storedPassword);
+  if (!isMatch) {
+    throw errorResponse(400, "이메일 또는 비밀번호가 잘못되었습니다.");
+  }
 };
 
 // JWT 토큰 생성
 const generateTokens = (user) => {
-    const payload = { email: user.email, role: user.role };
-    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
-    const refreshToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '3d' });
-    return { accessToken, refreshToken };
+  const payload = { email: user.email, role: user.role };
+  const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+  const refreshToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "3d" });
+  return { accessToken, refreshToken };
 };
 
 // email 로 사용자 id 조회
 async function getUserIdByEmail(email) {
-    const sql = `SELECT id FROM members WHERE email = ?`
-    const [result] = await pool.execute(sql, [email])
+  const sql = `SELECT id FROM members WHERE email = ?`;
+  const [result] = await pool.execute(sql, [email]);
 
-    if (row.length === 0) {
-        throw errorResponse(404, '사용자를 찾을 수 없습니다.')
-    }
+  if (row.length === 0) {
+    throw errorResponse(404, "사용자를 찾을 수 없습니다.");
+  }
 
-    return result[0].id;
+  return result[0].id;
 }
 
 // 로그인 처리 함수
 exports.login = async (req, res) => {
-    const { email, passwd } = req.body;
+  const { email, passwd } = req.body;
 
-    // 이메일과 비밀번호 체크
-    if (!email || !passwd) {
-        return res.status(400).json(errorResponse(400, '이메일과 비밀번호를 입력하세요.'));
+  // 이메일과 비밀번호 체크
+  if (!email || !passwd) {
+    return res
+      .status(400)
+      .json(errorResponse(400, "이메일과 비밀번호를 입력하세요."));
+  }
+
+  const sql = `SELECT * FROM members WHERE email = ?`;
+
+  try {
+    // DB에서 사용자 정보 조회
+    const [rows] = await pool.execute(sql, [email]);
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json(errorResponse(404, "이메일 또는 비밀번호가 잘못되었습니다."));
     }
 
-    const sql = `SELECT * FROM members WHERE email = ?`;
+    const user = rows[0];
 
-    try {
-        // DB에서 사용자 정보 조회
-        const [rows] = await pool.execute(sql, [email]);
-        if (rows.length === 0) {
-            return res.status(404).json(errorResponse(404, '이메일 또는 비밀번호가 잘못되었습니다.'));
-        }
+    // 비밀번호 비교
+    await validatePassword(passwd, user.passwd);
 
-        const user = rows[0];
+    // JWT 토큰 생성
+    const { accessToken, refreshToken } = generateTokens(user);
 
-        // 비밀번호 비교
-        await validatePassword(passwd, user.passwd);
+    // 리프레시 토큰 DB 저장
+    const sql2 = `UPDATE members SET refreshtoken=? WHERE id=?`;
+    await pool.query(sql2, [refreshToken, user.id]);
 
-        // JWT 토큰 생성
-        const { accessToken, refreshToken } = generateTokens(user);
+    // 리프레시 토큰 쿠키 저장
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      sameSite: "Strict", // CSRF 공격 방지
+    });
 
-        // 리프레시 토큰 쿠키 저장
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            sameSite: 'Strict', // CSRF 공격 방지
-        })
-
-        return res.status(200)
-            .set('Authorization', `Bearer ${accessToken}`) // 액세스 토큰 헤더 저장
-            .json({
-                result: 'success',
-                message: '로그인 성공',
-                data: {
-                    name: user.name,
-                    role: user.role,
-                },
-            })
-
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json(errorResponse(500, '서버 오류가 발생했습니다.'));
-    }
+    return res
+      .status(200)
+      .set("Authorization", `Bearer ${accessToken}`) // 액세스 토큰 헤더 저장
+      .json({
+        result: "success",
+        message: "로그인 성공",
+        data: {
+          name: user.name,
+          role: user.role,
+        },
+      });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json(errorResponse(500, "서버 오류가 발생했습니다."));
+  }
 };
 
 // 로그아웃 처리 함수
 exports.logout = async (req, res) => {
-    try {
-        useAuthStore.getState().logout();  // 상태 초기화
-        localStorage.removeItem('accessToken');  // 액세스 토큰 삭제
-        localStorage.removeItem('refreshToken');  // 리프레시 토큰 삭제
+  try {
+    useAuthStore.getState().logout(); // 상태 초기화
+    localStorage.removeItem("accessToken"); // 액세스 토큰 삭제
+    localStorage.removeItem("refreshToken"); // 리프레시 토큰 삭제
 
-        return res.status(200).json({
-            result: 'success',
-            message: '로그아웃 성공',
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json(errorResponse(500, '로그아웃 중 오류가 발생했습니다.'));
+    const sql = `UPDATE members SET refreshtoken = NULL WHERE email=?`;
+    const [result] = await pool.query(sql, [email]);
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(400)
+        .json({ result: "fail", message: "유효하지 않은 사용자입니다" });
     }
+
+    return res.status(200).json({
+      result: "success",
+      message: "로그아웃 성공",
+    });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json(errorResponse(500, "로그아웃 중 오류가 발생했습니다."));
+  }
 };
 
+// 리프레시 토큰 검증 및 액세스 토큰 재발급
 exports.refreshVerify = async (req, res) => {
-    // 예정
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return res
+        .status(400)
+        .json({ result: "fail", message: "리프레시 토큰이 필요합니다" });
+    }
+
+    // DB에 저장된 리프레시 토큰과 비교
+    const sql2 = `UPDATE members SET refreshtoken=? WHERE id=?`
+    await pool.execute(sql2, [refreshToken, user.id]);
+    
+    if (result.length === 0) {
+      return res
+        .status(403)
+        .json({ result: "fail", message: "유효하지 않은 리프레시 토큰입니다" });
+    }
+
+    // 리프레시 토큰 검증
+    jwt.verify(refreshToken, process.env.REFRESH_SECRET, (err, decoded) => {
+      if (err) {
+        return res
+          .status(403)
+          .json({
+            result: "fail",
+            message: "리프레시 토큰이 만료되었거나 유효하지 않습니다",
+          });
+      }
+
+      const userPayload = {
+        id: decoded.id,
+        email: decoded.email,
+        role: decoded.role,
+      };
+      // 새로운 액세스 토큰 생성
+      const newAccessToken = generateToken(
+        userPayload,
+        process.env.ACCESS_SECRET,
+        "15m"
+      );
+
+      res.json({ result: "success", accessToken: newAccessToken });
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({
+        result: "fail",
+        message: "리프레시 토큰 검증 중 에러: " + error.message,
+      });
+  }
+};
+
+// 로그인한 사용자 정보 조회
+exports.getAuthenticUser = async (req, res) => {
+  res.json(req.authUser);
+};
+
+// 마이페이지
+exports.mypage = async (req, res) => {
+  try {
+    if (!req.authUser)
+      return res
+        .status(404)
+        .json({ result: "fail", message: "로그인해야 이용 가능해요" });
+    const id = req.authUser.id;
+    const sql = `SELECT * FROM members WHERE id=?`;
+    const [result] = await pool.query(sql, [id]);
+    if (result.length === 0) {
+      return res
+        .status(404)
+        .json({ result: "fail", message: "회원이 아닙니다" });
+    }
+    const { passwd: _, ...userData } = result[0];
+    return res
+      .status(200)
+      .json({
+        result: "success",
+        message: `${userData.name}님의 MyPage입니다`,
+        data: userData,
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ result: "fail", message: "DB Error : " + error });
+  }
 };

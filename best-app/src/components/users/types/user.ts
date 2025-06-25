@@ -11,7 +11,7 @@ export interface User {
 export type Role = 'USER' | 'ADMIN' // enum으로도 가능
 
 // 공통 api 응답
-export interface ApiResesponse<T = undefined> {
+export interface ApiResponse<T = undefined> {
     result: 'success' | 'fail';
     message: string;
     data?: T; // 성공시에만 존재
@@ -44,7 +44,7 @@ export interface UserWithoutPassword {
     indate: string;
 }
 
-export type UserListResponse = ApiResesponse<UserWithoutPassword[]>;
+export type UserListResponse = ApiResponse<UserWithoutPassword[]>;
 
-export type CreateUserResponse = ApiResesponse<createUserData>;
-export type EmailCheckResponse = ApiResesponse<EmailCheckData>;
+export type CreateUserResponse = ApiResponse<createUserData>;
+export type EmailCheckResponse = ApiResponse<EmailCheckData>;
