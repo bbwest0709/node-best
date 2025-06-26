@@ -21,8 +21,8 @@ const validatePassword = async (inputPassword, storedPassword) => {
 // JWT 토큰 생성
 const generateTokens = (user) => {
   const payload = { email: user.email, role: user.role };
-  const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
-  const refreshToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "3d" });
+  const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: "1h" });
+  const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: "3d" });
   return { accessToken, refreshToken };
 };
 
@@ -31,7 +31,7 @@ async function getUserIdByEmail(email) {
   const sql = `SELECT id FROM members WHERE email = ?`;
   const [result] = await pool.execute(sql, [email]);
 
-  if (row.length === 0) {
+  if (result.length === 0) {
     throw errorResponse(404, "사용자를 찾을 수 없습니다.");
   }
 
@@ -85,8 +85,12 @@ exports.login = async (req, res) => {
         result: "success",
         message: "로그인 성공",
         data: {
+          id: user.id,
           name: user.name,
+          email: user.email,
           role: user.role,
+          accessToken: accessToken,
+          refreshToken: refreshToken
         },
       });
   } catch (error) {
@@ -99,61 +103,48 @@ exports.login = async (req, res) => {
 
 // 로그아웃 처리 함수
 exports.logout = async (req, res) => {
-  try {
-    useAuthStore.getState().logout(); // 상태 초기화
-    localStorage.removeItem("accessToken"); // 액세스 토큰 삭제
-    localStorage.removeItem("refreshToken"); // 리프레시 토큰 삭제
+  const email = req.authUser.email;
 
-    const sql = `UPDATE members SET refreshtoken = NULL WHERE email=?`;
-    const [result] = await pool.query(sql, [email]);
+  useAuthStore.getState().logout();
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
 
-    if (result.affectedRows === 0) {
-      return res
-        .status(400)
-        .json({ result: "fail", message: "유효하지 않은 사용자입니다" });
-    }
+  const sql = `UPDATE members SET refreshtoken = NULL WHERE email=?`;
+  const [result] = await pool.query(sql, [email]);
 
-    return res.status(200).json({
-      result: "success",
-      message: "로그아웃 성공",
-    });
-  } catch (error) {
-    console.error(error);
-    return res
-      .status(500)
-      .json(errorResponse(500, "로그아웃 중 오류가 발생했습니다."));
+  if (result.affectedRows === 0) {
+    return res.status(400).json({ result: "fail", message: "유효하지 않은 사용자입니다" });
   }
+
+  return res.status(200).json({
+    result: "success",
+    message: "로그아웃 성공",
+  });
 };
 
 // 리프레시 토큰 검증 및 액세스 토큰 재발급
 exports.refreshVerify = async (req, res) => {
   try {
-    const { refreshToken } = req.body;
+    const { refreshToken } = req.cookies;  // 쿠키에서 리프레시 토큰을 가져옴
     if (!refreshToken) {
-      return res
-        .status(400)
-        .json({ result: "fail", message: "리프레시 토큰이 필요합니다" });
+      return res.status(400).json({ result: "fail", message: "리프레시 토큰이 필요합니다" });
     }
 
     // DB에 저장된 리프레시 토큰과 비교
-    const sql2 = `UPDATE members SET refreshtoken=? WHERE id=?`
-    await pool.execute(sql2, [refreshToken, user.id]);
-    
-    if (result.length === 0) {
-      return res
-        .status(403)
-        .json({ result: "fail", message: "유효하지 않은 리프레시 토큰입니다" });
+    const sql2 = `SELECT refreshtoken FROM members WHERE id = ?`;
+    const [rows] = await pool.execute(sql2, [req.authUser.id]);
+
+    if (rows.length === 0 || rows[0].refreshtoken !== refreshToken) {
+      return res.status(403).json({ result: "fail", message: "유효하지 않은 리프레시 토큰입니다" });
     }
 
     // 리프레시 토큰 검증
-    jwt.verify(refreshToken, process.env.REFRESH_SECRET, (err, decoded) => {
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, decoded) => {
       if (err) {
-        return res
-          .status(403)
-          .json({
-            result: "fail",
-            message: "리프레시 토큰이 만료되었거나 유효하지 않습니다",
-          });
+        return res.status(403).json({
+          result: "fail",
+          message: "리프레시 토큰이 만료되었거나 유효하지 않습니다",
+        });
       }
 
       const userPayload = {
@@ -161,23 +152,18 @@ exports.refreshVerify = async (req, res) => {
         email: decoded.email,
         role: decoded.role,
       };
+
       // 새로운 액세스 토큰 생성
-      const newAccessToken = generateToken(
-        userPayload,
-        process.env.ACCESS_SECRET,
-        "15m"
-      );
+      const newAccessToken = jwt.sign(userPayload, process.env.JWT_ACCESS_SECRET, { expiresIn: "1h" });
 
       res.json({ result: "success", accessToken: newAccessToken });
     });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        result: "fail",
-        message: "리프레시 토큰 검증 중 에러: " + error.message,
-      });
+    res.status(500).json({
+      result: "fail",
+      message: "리프레시 토큰 검증 중 에러: " + error.message,
+    });
   }
 };
 
@@ -189,18 +175,24 @@ exports.getAuthenticUser = async (req, res) => {
 // 마이페이지
 exports.mypage = async (req, res) => {
   try {
-    if (!req.authUser)
+    if (!req.authUser) {
       return res
         .status(404)
         .json({ result: "fail", message: "로그인해야 이용 가능해요" });
-    const id = req.authUser.id;
+    }
+
+    const { email } = req.authUser;  // 이메일로 조회
+    const userId = await getUserIdByEmail(email);  // 이메일로 ID 조회
+
     const sql = `SELECT * FROM members WHERE id=?`;
-    const [result] = await pool.query(sql, [id]);
+    const [result] = await pool.query(sql, [userId]);
+
     if (result.length === 0) {
       return res
         .status(404)
         .json({ result: "fail", message: "회원이 아닙니다" });
     }
+
     const { passwd: _, ...userData } = result[0];
     return res
       .status(200)

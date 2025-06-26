@@ -9,6 +9,7 @@ const postRouter = require('./src/routes/postRouter')
 const userRouter = require('./src/routes/userRouter')
 const adminRouter = require('./src/routes/adminRouter')
 const authRouter = require('./src/routes/authRouter')
+const { verifyAccessToken, verifyAdmin } = require('./src/middlewares/verifyMiddleware')
 
 const port = process.env.PORT || 7777;
 
@@ -28,7 +29,7 @@ app.use(cors()) // react와 통신하려면 필요한 미들웨어
 app.use('/', indexRouter)
 app.use('/api/posts', postRouter)
 app.use('/api/users', userRouter)
-app.use('/api/admin',verifyAccessToken, verifyAdmin ,adminRouter) // 인가 여부 체크하는 미들웨어 설정
+app.use('/api/admin', verifyAccessToken, verifyAdmin, adminRouter) // 인가 여부 체크하는 미들웨어 설정
 app.use('/api/auth', authRouter);
 
 

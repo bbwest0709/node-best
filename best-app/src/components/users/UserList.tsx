@@ -12,15 +12,30 @@ export default function UserList() {
         const fetchUsers = async () => {
             try {
                 const res = await apiUserList();
+
+                // 성공적인 응답 처리
                 if (res.result === 'success' && res.data) {
                     setUsers(res.data);
                 } else {
                     alert(res.message);
                 }
-            } catch (error) {
-                alert('사용자 목록을 불러오는 중 오류가 발생했습니다: ' + (error as Error).message);
+            } catch (error: any) {
+                // 상태 코드에 따라 처리
+                if (error.response) {
+                    const { status, data } = error.response;
+                    console.log(status)
+                    if (status === 401) {
+                        alert('인증이 필요합니다. 로그인 후 다시 시도해주세요.');
+                    } else if (status === 403) {
+                        alert('관리자 권한이 필요합니다.');
+                    } else {
+                        alert('사용자 목록을 불러오는 중 오류가 발생했습니다: ' + (data?.message || '알 수 없는 오류'));
+                    }
+                } else {
+                    alert('네트워크 오류가 발생했습니다.');
+                }
             } finally {
-                setLoading(false); // 성공/실패 여부와 상관없이 로딩 상태 종료
+                setLoading(false); // 로딩 종료
             }
         };
 

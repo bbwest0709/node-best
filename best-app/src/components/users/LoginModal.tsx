@@ -48,28 +48,31 @@ export default function LoginModal({ show, setShowLogin }: LoginModalProps) {
     try {
       const res = await apiSignIn(loginUser);
       const { result, message, data } = res;
+      if (result === 'success') {
+        alert(message + ` ${data?.name}님 환영합니다`)
 
-      if (result === "success" && data) {
-        alert(message + ` ${data.name}님 환영합니다`);
+        if (data) {
+          const { accessToken, refreshToken } = data;
+          // 회원정보,토큰들 loginAuthUser통해서 전달. 전역적 state로 관리하기 위해
+          loginAuthUser({ ...data })
+          // sessionStorage, localStorage에 accessToken, refreshToken 저장 
+          sessionStorage.setItem('accessToken', accessToken!)
+          localStorage.setItem('refreshToken', refreshToken!)
+        }
 
-        // 로그인 상태 업데이트 및 토큰 저장
-        loginAuthUser({ ...data });
-        sessionStorage.setItem("accessToken", data.accessToken!);
-        localStorage.setItem("refreshToken", data.refreshToken!);
-
-        reset();
-        setShowLogin(false);
-        navigate("/");
       } else {
-        alert(message);
-        emailRef.current?.focus();
+        alert(message)
       }
-    } catch (error: any) {
-      alert(error.response?.data?.message ?? error.message);
+      emailRef.current?.focus();
       reset();
+      setShowLogin(false);//모달 창 닫기
+    } catch (error: any) {
+      console.error(error)
+      alert(error.response?.data?.message ?? error.message)
+      reset()
       emailRef.current?.focus();
     }
-  };
+  }
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();

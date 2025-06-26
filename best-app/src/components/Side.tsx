@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
 import { apiSignOut } from "../api/userApi";
 import axios from "axios";
+import axiosInstance from "../api/axiosInstance";
 
 interface SideProps {
   setShowLogin: (show: boolean) => void;
@@ -30,12 +31,31 @@ const Side: React.FC<SideProps> = ({ setShowLogin }) => {
       // 액세스 토큰 헤더 제거
       delete axios.defaults.headers["Authorization"];
 
+      sessionStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+
       alert("로그아웃 되었습니다!");
       navigate("/");
     } catch (error) {
       alert("로그아웃 실패: " + (error as Error).message);
     }
   };
+
+  const handleAuthTest = async () => {
+    try {
+      const atoken = sessionStorage.getItem('accessToken');
+
+      const response = await axiosInstance.get('/auth/mypage', {
+        headers: {
+          'Authorization': `Bearer ${atoken}`
+        }
+      })
+      alert(response.data.message);
+    } catch (error: any) {
+      console.error(error);
+      alert(error.response?.data?.message)
+    }
+  }
 
   return (
     <Stack gap={2} className="mx-auto w-100">
@@ -68,7 +88,7 @@ const Side: React.FC<SideProps> = ({ setShowLogin }) => {
         </Button>
       )}
 
-      <Button variant="outline-danger">인증 테스트</Button>
+      <Button variant="outline-danger" onClick={handleAuthTest}>인증 테스트</Button>
 
       <hr />
       <ListGroup>
