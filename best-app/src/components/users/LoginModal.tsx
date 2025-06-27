@@ -1,8 +1,8 @@
 import React, { useState, useRef, type ChangeEvent, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
 import { Modal, Button, Row, Col, Form } from "react-bootstrap";
 import { useAuthStore, type AuthUser } from "../../stores/authStore";
 import { apiSignIn } from "../../api/userApi";
+import { useNavigate } from "react-router-dom";
 
 interface LoginModalProps {
   show: boolean;
@@ -17,6 +17,7 @@ interface LoginUser {
 export default function LoginModal({ show, setShowLogin }: LoginModalProps) {
   const [loginUser, setLoginUser] = useState<LoginUser>({ email: "", passwd: "" });
   const loginAuthUser = useAuthStore((s) => s.loginAuthUser);
+  const setLoading = useAuthStore((s) => s.setLoading);
   const navigate = useNavigate();
 
   const emailRef = useRef<HTMLInputElement>(null);
@@ -46,33 +47,37 @@ export default function LoginModal({ show, setShowLogin }: LoginModalProps) {
 
   const requestLogin = async () => {
     try {
+      setLoading(true);  // 로딩 시작
       const res = await apiSignIn(loginUser);
       const { result, message, data } = res;
-      if (result === 'success') {
-        alert(message + ` ${data?.name}님 환영합니다`)
 
-        if (data) {
-          const { accessToken, refreshToken } = data;
-          // 회원정보,토큰들 loginAuthUser통해서 전달. 전역적 state로 관리하기 위해
-          loginAuthUser({ ...data })
-          // sessionStorage, localStorage에 accessToken, refreshToken 저장 
-          sessionStorage.setItem('accessToken', accessToken!)
-          localStorage.setItem('refreshToken', refreshToken!)
-        }
+      if (result === "success" && data) {
+        alert(`${message} ${data.name}님 환영합니다`);
 
+        const { accessToken, refreshToken } = data;
+
+        // 로그인한 사용자 정보 상태 저장
+        loginAuthUser(data);
+
+        // 토큰 저장
+        sessionStorage.setItem("accessToken", accessToken || "");
+        localStorage.setItem("refreshToken", refreshToken || "");
+
+        // 로그인 성공 후 원하는 페이지로 이동하려면 여기서 navigate 가능
+        // navigate("/");
+
+        setShowLogin(false);
       } else {
-        alert(message)
+        alert(message || "로그인 실패");
       }
-      emailRef.current?.focus();
-      reset();
-      setShowLogin(false);//모달 창 닫기
     } catch (error: any) {
-      console.error(error)
-      alert(error.response?.data?.message ?? error.message)
-      reset()
-      emailRef.current?.focus();
+      console.error(error);
+      alert(error.response?.data?.message ?? error.message ?? "로그인 중 오류 발생");
+    } finally {
+      setLoading(false);  // 로딩 끝
+      reset();
     }
-  }
+  };
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();

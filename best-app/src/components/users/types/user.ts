@@ -36,6 +36,14 @@ export interface EmailCheckData {
     isDuplicate: boolean;
 }
 
+// export interface UserListResponse {
+//     id: number;
+//     name: string;
+//     email: string;
+//     indate: string;
+//     role: Role;
+// }
+
 export interface UserWithoutPassword {
     id?: number;
     name: string;

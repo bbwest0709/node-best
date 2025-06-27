@@ -1,5 +1,5 @@
 import axiosInstance from "./axiosInstance";
-import type { User, CreateUserResponse, EmailCheckResponse, UserListResponse, ApiSignInResponse } from '../components/users/types/user';
+import type { User, CreateUserResponse, EmailCheckResponse, ApiSignInResponse, UserListResponse } from '../components/users/types/user';
 import type { AuthUser } from "../stores/authStore";
 
 // 회원 가입 요청
