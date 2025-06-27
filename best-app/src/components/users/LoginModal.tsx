@@ -50,7 +50,14 @@ export default function LoginModal({ show, setShowLogin }: LoginModalProps) {
       setLoading(true);
       const res = await apiSignIn(loginUser);
       if (res.result === "success" && res.data) {
+        loginAuthUser(res.data);
         alert(`${res.message} ${res.data.name}님 환영합니다`);
+
+        // 반드시 토큰 저장
+        sessionStorage.setItem("accessToken", res.data.accessToken || "");
+        localStorage.setItem("refreshToken", res.data.refreshToken || "");
+
+        setShowLogin(false);
       } else {
         alert(res.message || "로그인 실패");
       }
