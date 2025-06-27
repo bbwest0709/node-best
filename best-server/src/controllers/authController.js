@@ -42,7 +42,6 @@ async function getUserIdByEmail(email) {
 exports.login = async (req, res) => {
   const { email, passwd } = req.body;
 
-  // 이메일과 비밀번호 체크
   if (!email || !passwd) {
     return res
       .status(400)
@@ -52,35 +51,34 @@ exports.login = async (req, res) => {
   const sql = `SELECT * FROM members WHERE email = ?`;
 
   try {
-    // DB에서 사용자 정보 조회
     const [rows] = await pool.execute(sql, [email]);
     if (rows.length === 0) {
       return res
-        .status(404)
-        .json(errorResponse(404, "이메일 또는 비밀번호가 잘못되었습니다."));
+        .status(400)
+        .json(errorResponse(400, "이메일 또는 비밀번호가 잘못되었습니다."));
     }
 
     const user = rows[0];
 
-    // 비밀번호 비교
-    await validatePassword(passwd, user.passwd);
+    try {
+      await validatePassword(passwd, user.passwd);
+    } catch (err) {
+      return res.status(400).json(err);
+    }
 
-    // JWT 토큰 생성
     const { accessToken, refreshToken } = generateTokens(user);
 
-    // 리프레시 토큰 DB 저장
     const sql2 = `UPDATE members SET refreshtoken=? WHERE id=?`;
     await pool.query(sql2, [refreshToken, user.id]);
 
-    // 리프레시 토큰 쿠키 저장
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      sameSite: "Strict", // CSRF 공격 방지
+      sameSite: "Strict",
     });
 
     return res
       .status(200)
-      .set("Authorization", `Bearer ${accessToken}`) // 액세스 토큰 헤더 저장
+      .set("Authorization", `Bearer ${accessToken}`)
       .json({
         result: "success",
         message: "로그인 성공",
@@ -89,8 +87,8 @@ exports.login = async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role,
-          accessToken: accessToken,
-          refreshToken: refreshToken
+          accessToken,
+          refreshToken,
         },
       });
   } catch (error) {

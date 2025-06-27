@@ -47,34 +47,17 @@ export default function LoginModal({ show, setShowLogin }: LoginModalProps) {
 
   const requestLogin = async () => {
     try {
-      setLoading(true);  // 로딩 시작
+      setLoading(true);
       const res = await apiSignIn(loginUser);
-      const { result, message, data } = res;
-
-      if (result === "success" && data) {
-        alert(`${message} ${data.name}님 환영합니다`);
-
-        const { accessToken, refreshToken } = data;
-
-        // 로그인한 사용자 정보 상태 저장
-        loginAuthUser(data);
-
-        // 토큰 저장
-        sessionStorage.setItem("accessToken", accessToken || "");
-        localStorage.setItem("refreshToken", refreshToken || "");
-
-        // 로그인 성공 후 원하는 페이지로 이동하려면 여기서 navigate 가능
-        // navigate("/");
-
-        setShowLogin(false);
+      if (res.result === "success" && res.data) {
+        alert(`${res.message} ${res.data.name}님 환영합니다`);
       } else {
-        alert(message || "로그인 실패");
+        alert(res.message || "로그인 실패");
       }
     } catch (error: any) {
-      console.error(error);
-      alert(error.response?.data?.message ?? error.message ?? "로그인 중 오류 발생");
+      console.error(error.response?.data?.message ?? error.message ?? "로그인 중 오류 발생");
     } finally {
-      setLoading(false);  // 로딩 끝
+      setLoading(false);
       reset();
     }
   };

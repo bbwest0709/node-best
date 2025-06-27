@@ -1,50 +1,51 @@
-// ChatApp.tsx
 import { IoChatbubblesOutline } from "react-icons/io5";
 import { Button } from "react-bootstrap";
 import "./chat.css";
 import { useAuthStore } from "../../stores/authStore";
 import { useState, useRef, useEffect } from "react";
-import socket from "./socket"
+import socket from "./socket";
 
 type ChatMessage = {
     sender: string;
     message: string;
-}
+};
 
 export default function ChatApp() {
-
-    const authUser = useAuthStore(s => s.authUser)
-    const [nickName, setNickName] = useState<string>('');
-    const [message, setMessage] = useState<string>('');
+    const authUser = useAuthStore((s) => s.authUser);
+    const [nickName, setNickName] = useState<string>(authUser?.name || "");
+    const [message, setMessage] = useState<string>("");
     const [chatList, setChatList] = useState<ChatMessage[]>([]);
 
-    const messageRef = useRef<HTMLInputElement>(null)
-    const endRef = useRef<HTMLDivElement>(null)
+    const messageRef = useRef<HTMLInputElement>(null);
+    const endRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (authUser?.name) {
+            setNickName(authUser.name);
+        }
+    }, [authUser]);
 
     useEffect(() => {
         if (!socket.connected) {
             socket.connect(); // 챗서버 연결
         }
 
-        // 서버가 보내오는 메시지를 chatList에 설정
-        socket.on('receiveMessage', (data: ChatMessage) => {
+        socket.on("receiveMessage", (data: ChatMessage) => {
             setChatList((prev) => [...prev, data]);
         });
 
-        return () => { // unmount 될 때 실행되는 cleanup 함수
+        return () => {
             if (socket.connected) {
-                console.log('소켓 연결 끊음')
-                socket.off('receiveMessage') // 이벤트 receiveMessage 제거
-                socket.disconnect(); // 챗서버 연결 중지
+                console.log("소켓 연결 끊음");
+                socket.off("receiveMessage");
+                socket.disconnect();
             }
-        }
-
-    }, [])
+        };
+    }, []);
 
     useEffect(() => {
-        // 새 메세지가 추가될 때마다 해당 요소로 스크롤 하도록
-        endRef.current?.scrollIntoView()
-    })
+        endRef.current?.scrollIntoView();
+    }, [chatList]);
 
     const validateInputs = (nickName?: string, message?: string): boolean => {
         if (!nickName?.trim()) {
@@ -56,27 +57,30 @@ export default function ChatApp() {
             return false;
         }
         return true;
-    }
+    };
 
     const sendMessage = () => {
         if (!validateInputs(nickName, message)) return;
 
         if (!socket.connected) {
             socket.connect();
-            socket.once('connect', () => {
-                socket.emit('sendMessage', { sender: nickName, message: message });
+            socket.once("connect", () => {
+                socket.emit("sendMessage", { sender: nickName, message });
             });
         } else {
-            socket.emit('sendMessage', { sender: nickName, message: message });
+            socket.emit("sendMessage", { sender: nickName, message });
         }
 
-        setMessage('');
+        setMessage("");
         messageRef.current?.focus();
-    }
+    };
 
     return (
         <div className="wrap">
-            <h2><IoChatbubblesOutline />실시간 채팅</h2>
+            <h2>
+                <IoChatbubblesOutline />
+                실시간 채팅
+            </h2>
             <input
                 type="text"
                 name="nickName"
@@ -84,6 +88,7 @@ export default function ChatApp() {
                 onChange={(e) => setNickName(e.target.value)}
                 placeholder="닉네임을 입력하세요"
                 className="input"
+                disabled={!!authUser} // 로그인 시 닉네임 수정 불가
             />
 
             <div className="divMsg">
@@ -96,7 +101,7 @@ export default function ChatApp() {
                         </div>
                     );
                 })}
-                <div ref={endRef} /> {/* 스크롤 위치 지정 */}
+                <div ref={endRef} />
             </div>
 
             <div className="input-area">
@@ -106,15 +111,17 @@ export default function ChatApp() {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
+                        if (e.key === "Enter") {
                             sendMessage();
                         }
                     }}
                     placeholder="메시지를 입력하세요"
                     className="input_msg"
                 />
-                <Button className="send-btn btn-info" onClick={sendMessage}>Send</Button>
+                <Button className="send-btn btn-info" onClick={sendMessage}>
+                    Send
+                </Button>
             </div>
         </div>
-    )
+    );
 }
