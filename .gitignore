@@ -1,0 +1,30 @@
+# Node modulesAdd commentMore actions
+node_modules/
+
+# 환경 변수 파일
+.env
+
+# 로그 파일
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 운영체제별 설정
+.DS_Store
+Thumbs.db
+
+# VS Code 설정
+.vscode/
+
+# 빌드 디렉토리 (옵션: 빌드할 경우)
+dist/
+build/
+
+# 캐시 및 임시파일
+.cache/
+tmp/
+*.log
+
+# 패키지 락 파일 (원할 경우 하나만 유지)
+# package-lock.json
+# yarn.lock
